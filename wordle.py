@@ -1,9 +1,4 @@
 import random
-# from colorama import init
-# from termcolor import colored
-
-# Initialize colorama
-# init()
 
 
 def colored(text: str, color: int) -> str:
@@ -59,7 +54,6 @@ class WordleGame:
 
         self.guess: str = ""
 
-    # make into its own function possibly outisde of the class
     def guess_handler(self) -> str:
         while True:
             self.guess = input("Guess: ")
