@@ -10,7 +10,8 @@ def colored(text: str, color: int) -> str:
     return f"\033[{color}m{text}\033[0m"
 
 
-valid_words = [* open("valid-wordle-words.txt", "r")]
+valid_words: list = [* open("valid-wordle-words.txt", "r")]
+reset_progress: list = ["_", "_", "_", "_", "_"]
 
 
 # WordleGame : _ -> WordleGame
@@ -25,7 +26,6 @@ class WordleGame:
             "b",
             "c",
             "d",
-            "c",
             "e",
             "f",
             "g",
@@ -55,28 +55,44 @@ class WordleGame:
         self.word: str = valid_words[ind_of_word]
 
         # current player's progress
-        self.reset: list = ["_", "_", "_", "_", "_"]
-        self.word_progress: list = self.reset
+        self.word_progress: list = reset_progress
+
+        self.guess: str = ""
+
+    # make into its own function possibly outisde of the class
+    def guess_handler(self) -> str:
+        while True:
+            self.guess = input("Guess: ")
+            if len(self.guess) > 5 and self.guess in valid_words:
+                self.guess = input("Guess: ")
+            else:
+                break
+        return self.guess
 
     def makeGuess(self, guess: str) -> None:
-        self.word_progress = self.reset
         for i, letter in enumerate(guess):
-            if letter in self.available_letters:
-                self.available_letters.remove(letter)
-
             if letter in self.word:
                 if i == self.word.index(letter):
                     updated_letter = colored(letter, 32)
                 else:
                     updated_letter = colored(letter, 33)
-                self.word_progress[i] = updated_letter
+                if letter in self.available_letters:
+                    avail_letters_index = self.available_letters.index(letter)
+                    self.available_letters[avail_letters_index] = updated_letter
+            else:
+                if letter in self.available_letters:
+                    self.available_letters.remove(letter)
+                updated_letter = "_"
+
+            self.word_progress[i] = updated_letter
         self.remaining_attempts -= 1
 
     def __str__(self):
         progress_msg = " ".join(self.word_progress)
         available_msg = " ".join(self.available_letters)
         print(
-            f"Attempts Remaining: {self.remaining_attempts}"
+            "--------------------------------------"
+            + f"\nAttempts Remaining: {self.remaining_attempts}"
             + f"\nWord Progress: {progress_msg}"
             + f"\nLetters Available: {available_msg}"
         )
@@ -87,12 +103,9 @@ def main():
     while play_game != "no":
         game = WordleGame()
         while game.remaining_attempts > 0:
-            while True:
-                guess = input("Guess: ")
-                if len(guess) != 5 and guess in valid_words:
-                    guess = input("Guess: ")
-                else:
-                    break
+            guess = game.guess_handler()
+            if guess == game.word:
+                break
             game.makeGuess(guess)
             game.__str__()
         if game.word_progress == game.word:
@@ -100,6 +113,7 @@ def main():
         else:
             print(f"The word was {game.word}. Better luck next time!")
         play_game = input("Would you like to play again? ").lower()
+    print("Thanks for playing!")
 
 
 if __name__ == "__main__":
