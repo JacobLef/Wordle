@@ -57,7 +57,7 @@ class WordleGame:
     def guess_handler(self) -> str:
         while True:
             self.guess = input("Guess: ")
-            if len(self.guess) > 5 and self.guess in valid_words:
+            if len(self.guess) > 5 and self.guess not in valid_words:
                 self.guess = input("Guess: ")
             else:
                 break
